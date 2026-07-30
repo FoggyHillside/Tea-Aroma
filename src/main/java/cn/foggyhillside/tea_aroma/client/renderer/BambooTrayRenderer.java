@@ -20,7 +20,6 @@ public class BambooTrayRenderer implements BlockEntityRenderer<BambooTrayEntity>
 
     @Override
     public void render(BambooTrayEntity pBlockEntity, float pPartialTick, PoseStack pPoseStack, MultiBufferSource pBuffer, int pPackedLight, int pPackedOverlay) {
-        //还要写两种揉捻变体
         if (!pBlockEntity.getBlockState().getValue(BambooTrayBlock.PROCESS_TYPE).equals(3)) {
             if (pBlockEntity.getBlockState().getValue(BambooTrayBlock.PROCESS_TYPE).equals(2) && pBlockEntity.getProgress() == 1) {
                 if (!pBlockEntity.getInventory().getStackInSlot(0).isEmpty()) {

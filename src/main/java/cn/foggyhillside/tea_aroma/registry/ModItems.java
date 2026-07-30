@@ -4,6 +4,7 @@ import cn.foggyhillside.tea_aroma.FoodList;
 import cn.foggyhillside.tea_aroma.TeaAroma;
 import cn.foggyhillside.tea_aroma.items.KettleItem;
 import cn.foggyhillside.tea_aroma.items.TeaItem;
+import cn.foggyhillside.tea_aroma.items.TeaTooltipItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.DeferredRegister;
@@ -55,31 +56,31 @@ public class ModItems {
             () -> new Item(new Item.Properties()));
     //Tea In Processing
     public static final RegistryObject<Item> ROSE_TEA_IN_PROCESSING = ITEMS.register("rose_tea_in_processing",
-            () -> new Item(new Item.Properties()));
+            () -> new TeaTooltipItem(new Item.Properties()));
     public static final RegistryObject<Item> DANDELION_TEA_IN_PROCESSING = ITEMS.register("dandelion_tea_in_processing",
-            () -> new Item(new Item.Properties()));
+            () -> new TeaTooltipItem(new Item.Properties()));
     public static final RegistryObject<Item> LILAC_TEA_IN_PROCESSING = ITEMS.register("lilac_tea_in_processing",
-            () -> new Item(new Item.Properties()));
+            () -> new TeaTooltipItem(new Item.Properties()));
     public static final RegistryObject<Item> BLUE_ORCHID_TEA_IN_PROCESSING = ITEMS.register("blue_orchid_tea_in_processing",
-            () -> new Item(new Item.Properties()));
+            () -> new TeaTooltipItem(new Item.Properties()));
     public static final RegistryObject<Item> TEA_IN_PROCESSING_0 = ITEMS.register("tea_in_processing_0",
-            () -> new Item(new Item.Properties()));
+            () -> new TeaTooltipItem(new Item.Properties()));
     public static final RegistryObject<Item> TEA_IN_PROCESSING_0_0 = ITEMS.register("tea_in_processing_0_0",
-            () -> new Item(new Item.Properties()));
+            () -> new TeaTooltipItem(new Item.Properties()));
     public static final RegistryObject<Item> TEA_IN_PROCESSING_0_0_0 = ITEMS.register("tea_in_processing_0_0_0",
-            () -> new Item(new Item.Properties()));
+            () -> new TeaTooltipItem(new Item.Properties()));
     public static final RegistryObject<Item> TEA_IN_PROCESSING_1 = ITEMS.register("tea_in_processing_1",
-            () -> new Item(new Item.Properties()));
+            () -> new TeaTooltipItem(new Item.Properties()));
     public static final RegistryObject<Item> TEA_IN_PROCESSING_1_0 = ITEMS.register("tea_in_processing_1_0",
-            () -> new Item(new Item.Properties()));
+            () -> new TeaTooltipItem(new Item.Properties()));
     public static final RegistryObject<Item> DARK_TEA_IN_PROCESSING = ITEMS.register("dark_tea_in_processing",
-            () -> new Item(new Item.Properties()));
+            () -> new TeaTooltipItem(new Item.Properties()));
     public static final RegistryObject<Item> BLACK_TEA_IN_PROCESSING = ITEMS.register("black_tea_in_processing",
-            () -> new Item(new Item.Properties()));
+            () -> new TeaTooltipItem(new Item.Properties()));
     public static final RegistryObject<Item> OOLONG_TEA_IN_PROCESSING_0 = ITEMS.register("oolong_tea_in_processing_0",
-            () -> new Item(new Item.Properties()));
+            () -> new TeaTooltipItem(new Item.Properties()));
     public static final RegistryObject<Item> OOLONG_TEA_IN_PROCESSING_1 = ITEMS.register("oolong_tea_in_processing_1",
-            () -> new Item(new Item.Properties()));
+            () -> new TeaTooltipItem(new Item.Properties()));
     //Tea
     public static final RegistryObject<Item> BAMBOO_TEA = ITEMS.register("bamboo_tea",
             () -> new TeaItem(ModBlocks.BAMBOO_TEA.get(), tea().food(FoodList.BAMBOO_TEA)));

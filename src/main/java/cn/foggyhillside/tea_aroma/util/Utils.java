@@ -1,8 +1,14 @@
 package cn.foggyhillside.tea_aroma.util;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class Utils {
     public static void addItem(ItemStack pStack, Player pPlayer, ItemStack pRemainingStack) {
@@ -21,6 +27,18 @@ public class Utils {
                     pPlayer.drop(pRemainingStack, false);
                 }
             }
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static ItemStack getResultItem(Recipe<?> recipe) {
+        Minecraft minecraft = Minecraft.getInstance();
+        ClientLevel level = minecraft.level;
+        if (level == null) {
+            throw new NullPointerException("level must not be null.");
+        } else {
+            RegistryAccess registryAccess = level.registryAccess();
+            return recipe.getResultItem(registryAccess);
         }
     }
 }

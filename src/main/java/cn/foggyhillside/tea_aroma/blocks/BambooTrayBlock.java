@@ -111,7 +111,7 @@ public class BambooTrayBlock extends BaseEntityBlock {
                 return 8;
             }
         } else {
-            return 0;
+            return super.getAnalogOutputSignal(pState, pLevel, pPos);
         }
     }
 

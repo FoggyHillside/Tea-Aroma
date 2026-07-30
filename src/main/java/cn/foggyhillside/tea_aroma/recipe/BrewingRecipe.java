@@ -103,7 +103,7 @@ public class BrewingRecipe implements Recipe<SimpleContainer> {
 
     @Override
     public ItemStack getResultItem(RegistryAccess access) {
-        return output.copy();
+        return output;
     }
 
     @Override

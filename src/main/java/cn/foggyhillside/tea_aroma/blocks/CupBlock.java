@@ -65,7 +65,7 @@ public class CupBlock extends BaseEntityBlock {
                         return InteractionResult.SUCCESS;
                     }
                 } else if (heldStack.isEmpty() && !cupEntity.isEmpty()) {
-                    if (cupEntity.extractItem(cupEntity, pPlayer, pHand)) {
+                    if (cupEntity.extractItem(pPlayer, pHand)) {
                         return InteractionResult.SUCCESS;
                     }
                 } else if (heldStack.isEmpty() && cupEntity.isEmpty()) {

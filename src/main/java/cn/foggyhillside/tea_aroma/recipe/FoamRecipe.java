@@ -18,7 +18,7 @@ import net.minecraftforge.common.crafting.CraftingHelper;
 
 import javax.annotation.Nullable;
 
-public class BlendingRecipe implements Recipe<SimpleContainer> {
+public class FoamRecipe implements Recipe<SimpleContainer> {
 
     private final ResourceLocation id;
 
@@ -26,14 +26,14 @@ public class BlendingRecipe implements Recipe<SimpleContainer> {
 
     private final ItemStack tea;
 
-    public BlendingRecipe(ResourceLocation id, ItemStack output, ItemStack tea) {
+    public FoamRecipe(ResourceLocation id, ItemStack output, ItemStack tea) {
         this.id = id;
         this.output = output;
         this.tea = tea;
     }
 
     public ItemStack getTea() {
-        return tea.copy();
+        return tea;
     }
 
     @Override
@@ -66,7 +66,7 @@ public class BlendingRecipe implements Recipe<SimpleContainer> {
 
     @Override
     public ItemStack getResultItem(RegistryAccess access) {
-        return output.copy();
+        return output;
     }
 
     @Override
@@ -76,43 +76,43 @@ public class BlendingRecipe implements Recipe<SimpleContainer> {
 
     @Override
     public RecipeSerializer<?> getSerializer() {
-        return BlendingRecipe.Serializer.INSTANCE;
+        return FoamRecipe.Serializer.INSTANCE;
     }
 
     @Override
     public RecipeType<?> getType() {
-        return BlendingRecipe.Type.INSTANCE;
+        return FoamRecipe.Type.INSTANCE;
     }
 
-    public static class Type implements RecipeType<BlendingRecipe> {
+    public static class Type implements RecipeType<FoamRecipe> {
         private Type() {
         }
 
-        public static final BlendingRecipe.Type INSTANCE = new BlendingRecipe.Type();
+        public static final FoamRecipe.Type INSTANCE = new FoamRecipe.Type();
     }
 
-    public static class Serializer implements RecipeSerializer<BlendingRecipe> {
-        public static final BlendingRecipe.Serializer INSTANCE = new BlendingRecipe.Serializer();
+    public static class Serializer implements RecipeSerializer<FoamRecipe> {
+        public static final FoamRecipe.Serializer INSTANCE = new FoamRecipe.Serializer();
 
         @Override
-        public BlendingRecipe fromJson(ResourceLocation location, JsonObject json) {
+        public FoamRecipe fromJson(ResourceLocation location, JsonObject json) {
             ItemStack tea = CraftingHelper.getItemStack(GsonHelper.getAsJsonObject(json, "tea"), true);
             if (tea.isEmpty()) {
-                throw new JsonParseException("No ingredient for blending recipe");
+                throw new JsonParseException("No ingredient for foam recipe");
             } else {
                 ItemStack output = CraftingHelper.getItemStack(GsonHelper.getAsJsonObject(json, "result"), true);
-                return new BlendingRecipe(location, output, tea);
+                return new FoamRecipe(location, output, tea);
             }
         }
 
         @Nullable
-        public BlendingRecipe fromNetwork(ResourceLocation id, FriendlyByteBuf buffer) {
+        public FoamRecipe fromNetwork(ResourceLocation id, FriendlyByteBuf buffer) {
             ItemStack output = buffer.readItem();
             ItemStack tea = buffer.readItem();
-            return new BlendingRecipe(id, output, tea);
+            return new FoamRecipe(id, output, tea);
         }
 
-        public void toNetwork(FriendlyByteBuf buffer, BlendingRecipe recipe) {
+        public void toNetwork(FriendlyByteBuf buffer, FoamRecipe recipe) {
             buffer.writeItem(recipe.output);
             buffer.writeItem(recipe.tea);
         }

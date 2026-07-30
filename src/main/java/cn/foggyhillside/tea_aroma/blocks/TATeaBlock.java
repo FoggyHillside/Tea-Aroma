@@ -1,7 +1,7 @@
 package cn.foggyhillside.tea_aroma.blocks;
 
 import cn.foggyhillside.tea_aroma.ModCompat;
-import cn.foggyhillside.tea_aroma.recipe.BlendingRecipe;
+import cn.foggyhillside.tea_aroma.recipe.FoamRecipe;
 import cn.foggyhillside.tea_aroma.registry.ModSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -37,7 +37,7 @@ public class TATeaBlock extends TABlock {
                     ItemStack stack = new ItemStack(item);
                     container.setItem(0, stack);
                     container.setItem(1, heldStack.copy());
-                    Optional<BlendingRecipe> recipe = pLevel.getRecipeManager().getRecipeFor(BlendingRecipe.Type.INSTANCE, container, pLevel);
+                    Optional<FoamRecipe> recipe = pLevel.getRecipeManager().getRecipeFor(FoamRecipe.Type.INSTANCE, container, pLevel);
 
                     if (recipe.isPresent()) {
                         if (recipe.get().getResultItem(pLevel.registryAccess()).getItem() instanceof BlockItem result) {

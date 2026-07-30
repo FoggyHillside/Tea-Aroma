@@ -67,7 +67,7 @@ public class TeaTreeBlock extends BushBlock implements BonemealableBlock {
         int i = pState.getValue(AGE);
         if (i < MAX_AGE && pLevel.getRawBrightness(pPos.above(), 0) >= 9 && ForgeHooks.onCropsGrowPre(pLevel, pPos, pState, pRandom.nextInt(5) == 0)) {
             BlockState blockstate = pState.setValue(AGE, i + 1);
-            pLevel.setBlock(pPos, blockstate, 2);
+            pLevel.setBlock(pPos, blockstate, Block.UPDATE_CLIENTS);
             pLevel.gameEvent(GameEvent.BLOCK_CHANGE, pPos, GameEvent.Context.of(blockstate));
             ForgeHooks.onCropsGrowPost(pLevel, pPos, pState);
         }
@@ -102,7 +102,7 @@ public class TeaTreeBlock extends BushBlock implements BonemealableBlock {
             popResource(pLevel, pPos, new ItemStack(ModItems.FRESH_TEA_LEAVES.get(), j + (flag ? 1 : 0)));
             pLevel.playSound(null, pPos, ModSounds.ITEM_TEA_LEAVES_PICK_FROM_TREE.get(), SoundSource.BLOCKS, 1.0F, 0.8F + pLevel.random.nextFloat() * 0.4F);
             BlockState blockstate = pState.setValue(AGE, 1);
-            pLevel.setBlock(pPos, blockstate, 2);
+            pLevel.setBlock(pPos, blockstate, Block.UPDATE_CLIENTS);
             pLevel.gameEvent(GameEvent.BLOCK_CHANGE, pPos, GameEvent.Context.of(pPlayer, blockstate));
             return InteractionResult.sidedSuccess(pLevel.isClientSide);
         } else {
@@ -128,6 +128,6 @@ public class TeaTreeBlock extends BushBlock implements BonemealableBlock {
     @Override
     public void performBonemeal(ServerLevel serverLevel, RandomSource randomSource, BlockPos blockPos, BlockState blockState) {
         int i = Math.min(3, blockState.getValue(AGE) + 1);
-        serverLevel.setBlock(blockPos, blockState.setValue(AGE, i), 2);
+        serverLevel.setBlock(blockPos, blockState.setValue(AGE, i), Block.UPDATE_CLIENTS);
     }
 }

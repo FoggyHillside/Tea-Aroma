@@ -90,16 +90,16 @@ public class BambooTrayEntity extends SyncedBlockEntity {
 
     public NonNullList<ItemStack> getInventoryList() {
         NonNullList<ItemStack> list = NonNullList.withSize(2, ItemStack.EMPTY);
-        list.set(0, this.inventory.getStackInSlot(0));
-        list.set(1, this.inventory.getStackInSlot(1));
+        list.set(0, this.inventory.getStackInSlot(0).copy());
+        list.set(1, this.inventory.getStackInSlot(1).copy());
         return list;
     }
 
     public SimpleContainer getInventoryContainer() {
         SimpleContainer container;
         container = new SimpleContainer(this.inventory.getSlots());
-        container.setItem(0, this.inventory.getStackInSlot(0));
-        container.setItem(1, this.inventory.getStackInSlot(1));
+        container.setItem(0, this.inventory.getStackInSlot(0).copy());
+        container.setItem(1, this.inventory.getStackInSlot(1).copy());
 
         return container;
     }

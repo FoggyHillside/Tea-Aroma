@@ -65,8 +65,8 @@ public class CupEntity extends SyncedBlockEntity {
         this.inventory.setStackInSlot(1, ItemStack.EMPTY);
     }
 
-    public ItemStackHandler getInventory() {
-        return this.inventory;
+    public ItemStack getItemStack(int i) {
+        return this.inventory.getStackInSlot(i).copy();
     }
 
     @Override
@@ -122,10 +122,10 @@ public class CupEntity extends SyncedBlockEntity {
         return false;
     }
 
-    public boolean extractItem(CupEntity cupEntity, Player player, InteractionHand hand) {
-        if (!cupEntity.isEmpty()) {
-            ItemStack firstStack = cupEntity.getInventory().getStackInSlot(0);
-            ItemStack secondStack = cupEntity.getInventory().getStackInSlot(1);
+    public boolean extractItem(Player player, InteractionHand hand) {
+        if (!this.isEmpty() && player.getItemInHand(hand).isEmpty()) {
+            ItemStack firstStack = inventory.getStackInSlot(0);
+            ItemStack secondStack = inventory.getStackInSlot(1);
             if (!secondStack.isEmpty()) {
                 player.setItemInHand(hand, secondStack.split(1));
             } else {

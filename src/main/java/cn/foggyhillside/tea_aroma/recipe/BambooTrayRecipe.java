@@ -76,7 +76,7 @@ public class BambooTrayRecipe implements Recipe<SimpleContainer> {
 
     @Override
     public ItemStack getResultItem(RegistryAccess access) {
-        return output.copy();
+        return output;
     }
 
     @Override

@@ -5,7 +5,7 @@ import cn.foggyhillside.tea_aroma.TeaAroma;
 import cn.foggyhillside.tea_aroma.blocks.CupBlock;
 import cn.foggyhillside.tea_aroma.blocks.TATeaBlock;
 import cn.foggyhillside.tea_aroma.blocks.entities.CupEntity;
-import cn.foggyhillside.tea_aroma.recipe.BlendingRecipe;
+import cn.foggyhillside.tea_aroma.recipe.FoamRecipe;
 import cn.foggyhillside.tea_aroma.recipe.BrewingRecipe;
 import cn.foggyhillside.tea_aroma.registry.ModItems;
 import cn.foggyhillside.tea_aroma.registry.ModSounds;
@@ -134,7 +134,7 @@ public class KettleItem extends BlockItem {
                 ItemStack teaStack = new ItemStack(item);
                 container.setItem(0, teaStack);
                 container.setItem(1, stack.copy());
-                Optional<BlendingRecipe> recipe = level.getRecipeManager().getRecipeFor(BlendingRecipe.Type.INSTANCE, container, level);
+                Optional<FoamRecipe> recipe = level.getRecipeManager().getRecipeFor(FoamRecipe.Type.INSTANCE, container, level);
 
                 if (recipe.isPresent()) {
                     if (recipe.get().getResultItem(level.registryAccess()).getItem() instanceof BlockItem result) {

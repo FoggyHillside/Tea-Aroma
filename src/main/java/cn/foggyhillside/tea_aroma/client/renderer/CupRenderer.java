@@ -24,13 +24,13 @@ public class CupRenderer implements BlockEntityRenderer<CupEntity> {
         Direction direction = (pBlockEntity.getBlockState().getValue(BambooTrayBlock.FACING)).getOpposite();
         ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
         for (int i = 0; i < 2; i++) {
-            if (!pBlockEntity.getInventory().getStackInSlot(i).isEmpty()) {
+            if (!pBlockEntity.getItemStack(i).isEmpty()) {
                 pPoseStack.pushPose();
                 pPoseStack.translate(0.5F, 0.1875F, 0.5F);
                 pPoseStack.scale(0.25F, 0.25F, 0.25F);
                 float f = -direction.toYRot();
                 pPoseStack.mulPose(Axis.YP.rotationDegrees(f + 45F * i));
-                ItemStack stack = pBlockEntity.getInventory().getStackInSlot(i);
+                ItemStack stack = pBlockEntity.getItemStack(i);
                 BakedModel bakedModel = itemRenderer.getModel(stack, pBlockEntity.getLevel(), null, 0);
                 itemRenderer.render(stack, ItemDisplayContext.FIXED, true, pPoseStack, pBuffer, pPackedLight, pPackedOverlay, bakedModel);
                 pPoseStack.popPose();
