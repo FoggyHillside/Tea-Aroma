@@ -1,0 +1,9 @@
+{
+  "type": "tea_aroma:foam",
+  "tea": {
+    "id": "tea_aroma:oolong_tea"
+  },
+  "result": {
+    "id": "tea_aroma:oolong_tea_latte"
+  }
+}

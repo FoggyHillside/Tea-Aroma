@@ -1,9 +1,0 @@
-{
-  "type": "tea_aroma:blending",
-  "tea": {
-    "item": "tea_aroma:blue_orchid_tea"
-  },
-  "result": {
-    "item": "tea_aroma:blue_orchid_tea_latte"
-  }
-}

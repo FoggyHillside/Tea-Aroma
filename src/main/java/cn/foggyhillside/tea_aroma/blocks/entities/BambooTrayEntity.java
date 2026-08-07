@@ -1,14 +1,14 @@
 package cn.foggyhillside.tea_aroma.blocks.entities;
 
+import cn.foggyhillside.tea_aroma.CommonConfigs;
 import cn.foggyhillside.tea_aroma.blocks.BambooTrayBlock;
-import cn.foggyhillside.tea_aroma.blocks.SyncedBlockEntity;
 import cn.foggyhillside.tea_aroma.blocks.entities.inventory.BambooTrayItemHandler;
-import cn.foggyhillside.tea_aroma.config.CommonConfigs;
 import cn.foggyhillside.tea_aroma.recipe.BambooTrayRecipe;
 import cn.foggyhillside.tea_aroma.registry.ModBlockEntities;
 import cn.foggyhillside.tea_aroma.registry.ModTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.stats.Stats;
@@ -16,28 +16,24 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemStackHandler;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.items.ItemStackHandler;
 
 import java.util.Optional;
 
 public class BambooTrayEntity extends SyncedBlockEntity {
     private final ItemStackHandler inventory;
-    private final LazyOptional<IItemHandler> inputHandler;
-
     private int progress = 0;
 
-    public BambooTrayEntity(BlockPos pPos, BlockState pBlockState) {
-        super(ModBlockEntities.BAMBOO_TRAY.get(), pPos, pBlockState);
+    public BambooTrayEntity(BlockPos pos, BlockState state) {
+        super(ModBlockEntities.BAMBOO_TRAY.get(), pos, state);
         this.inventory = this.createHandler();
-        this.inputHandler = LazyOptional.of(() -> new BambooTrayItemHandler(inventory));
     }
 
     private ItemStackHandler createHandler() {
@@ -62,7 +58,14 @@ public class BambooTrayEntity extends SyncedBlockEntity {
         };
     }
 
-
+    @SubscribeEvent
+    public static void registerCapabilities(RegisterCapabilitiesEvent event) {
+        event.registerBlockEntity(
+                Capabilities.ItemHandler.BLOCK,
+                ModBlockEntities.BAMBOO_TRAY.get(),
+                (be, context) -> new BambooTrayItemHandler(be.getInventory())
+        );
+    }
 
     public void playerProcess() {
         if (progress <= 1) {
@@ -90,16 +93,16 @@ public class BambooTrayEntity extends SyncedBlockEntity {
 
     public NonNullList<ItemStack> getInventoryList() {
         NonNullList<ItemStack> list = NonNullList.withSize(2, ItemStack.EMPTY);
-        list.set(0, this.inventory.getStackInSlot(0));
-        list.set(1, this.inventory.getStackInSlot(1));
+        list.set(0, this.inventory.getStackInSlot(0).copy());
+        list.set(1, this.inventory.getStackInSlot(1).copy());
         return list;
     }
 
     public SimpleContainer getInventoryContainer() {
         SimpleContainer container;
         container = new SimpleContainer(this.inventory.getSlots());
-        container.setItem(0, this.inventory.getStackInSlot(0));
-        container.setItem(1, this.inventory.getStackInSlot(1));
+        container.setItem(0, this.inventory.getStackInSlot(0).copy());
+        container.setItem(1, this.inventory.getStackInSlot(1).copy());
 
         return container;
     }
@@ -114,28 +117,17 @@ public class BambooTrayEntity extends SyncedBlockEntity {
     }
 
     @Override
-    public void load(CompoundTag pTag) {
-        super.load(pTag);
-        this.inventory.deserializeNBT(pTag.getCompound("inventory"));
+    protected void loadAdditional(CompoundTag pTag, HolderLookup.Provider pRegistries) {
+        super.loadAdditional(pTag, pRegistries);
+        this.inventory.deserializeNBT(pRegistries, pTag.getCompound("inventory"));
         this.progress = pTag.getInt("progress");
     }
 
     @Override
-    protected void saveAdditional(CompoundTag pTag) {
-        super.saveAdditional(pTag);
-        pTag.put("inventory", this.inventory.serializeNBT());
+    protected void saveAdditional(CompoundTag pTag, HolderLookup.Provider pRegistries) {
+        super.saveAdditional(pTag, pRegistries);
+        pTag.put("inventory", this.inventory.serializeNBT(pRegistries));
         pTag.putInt("progress", this.progress);
-    }
-
-    @Override
-    public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-        return cap.equals(ForgeCapabilities.ITEM_HANDLER) ? this.inputHandler.cast() : super.getCapability(cap, side);
-    }
-
-    @Override
-    public void setRemoved() {
-        super.setRemoved();
-        this.inputHandler.invalidate();
     }
 
     public boolean isEmpty() {
@@ -147,7 +139,7 @@ public class BambooTrayEntity extends SyncedBlockEntity {
                 && !(this.inventory.getStackInSlot(1).getCount() < inventory.getSlotLimit(1));
     }
 
-    public boolean isInValidProportion() {
+    public boolean isProportionValid() {
         if (!this.inventory.getStackInSlot(1).isEmpty()) {
             if (this.inventory.getStackInSlot(1).is(ModTags.BAMBOO_TRAY_FLOWER_SMALL)) {
                 return this.inventory.getStackInSlot(1).getCount() * 2 >= this.getInventory().getStackInSlot(0).getCount();
@@ -161,14 +153,24 @@ public class BambooTrayEntity extends SyncedBlockEntity {
 
     public static void tick(Level level, BlockPos pos, BlockState state, BambooTrayEntity entity) {
         SimpleContainer container = entity.getInventoryContainer();
-        Optional<BambooTrayRecipe> recipe = level.getRecipeManager().getRecipeFor(BambooTrayRecipe.Type.INSTANCE, container, level);
+        Optional<RecipeHolder<BambooTrayRecipe>> recipe = level.getRecipeManager().getRecipeFor(BambooTrayRecipe.Type.INSTANCE, new RecipeInput() {
+            @Override
+            public ItemStack getItem(int pIndex) {
+                return container.getItem(pIndex);
+            }
+
+            @Override
+            public int size() {
+                return container.getContainerSize();
+            }
+        }, level);
 
         if (recipe.isPresent()) {
-            if (recipe.get().getProcessType() == 2) {
-                if (!state.getValue(BambooTrayBlock.PROCESS_TYPE).equals(2) && entity.isInValidProportion()) {
+            if (recipe.get().value().getProcessType() == 2) {
+                if (!state.getValue(BambooTrayBlock.PROCESS_TYPE).equals(2) && entity.isProportionValid()) {
                     level.setBlockAndUpdate(pos, state.setValue(BambooTrayBlock.PROCESS_TYPE, 2));
                 }
-            } else if (recipe.get().getProcessType() == 1) {
+            } else if (recipe.get().value().getProcessType() == 1) {
                 if (!state.getValue(BambooTrayBlock.PROCESS_TYPE).equals(1)) {
                     level.setBlockAndUpdate(pos, state.setValue(BambooTrayBlock.PROCESS_TYPE, 1));
                 }
@@ -182,7 +184,7 @@ public class BambooTrayEntity extends SyncedBlockEntity {
                 setChanged(level, pos, state);
             }
             if (entity.progress >= CommonConfigs.BAMBOO_TRAY_MAX_PROGRESS.get()) {
-                spawnItem(entity, level, recipe.get().getResultItem(level.registryAccess()).copyWithCount(entity.inventory.getStackInSlot(0).getCount()));
+                spawnItem(entity, level, recipe.get().value().getResultItem(level.registryAccess()).copyWithCount(entity.inventory.getStackInSlot(0).getCount()));
                 if (state.getValue(BambooTrayBlock.PROCESS_TYPE).equals(2)) {
                     if (entity.inventory.getStackInSlot(1).is(ModTags.BAMBOO_TRAY_FLOWER_SMALL)) {
                         int count = entity.inventory.getStackInSlot(0).getCount() % 2 == 0 ? entity.inventory.getStackInSlot(0).getCount() / 2 : (entity.inventory.getStackInSlot(0).getCount() / 2) + 1;

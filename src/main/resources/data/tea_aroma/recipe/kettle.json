@@ -1,0 +1,31 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "121",
+    "3 3",
+    "333"
+  ],
+  "key": {
+    "1": {
+      "item": "minecraft:iron_nugget"
+    },
+    "2": {
+      "item": "minecraft:leather"
+    },
+    "3": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "tea_aroma:kettle",
+    "components": {
+      "tea_aroma:kettle_contents": {
+        "liquid": "none",
+        "amount": 0,
+        "boil_progress": 0
+      }
+    }
+  }
+}

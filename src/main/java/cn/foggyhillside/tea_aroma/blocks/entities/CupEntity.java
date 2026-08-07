@@ -1,10 +1,10 @@
 package cn.foggyhillside.tea_aroma.blocks.entities;
 
-import cn.foggyhillside.tea_aroma.blocks.SyncedBlockEntity;
+import cn.foggyhillside.tea_aroma.TeaAroma;
 import cn.foggyhillside.tea_aroma.blocks.entities.inventory.CupItemHandler;
 import cn.foggyhillside.tea_aroma.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionHand;
@@ -12,22 +12,19 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemStackHandler;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.items.ItemStackHandler;
 
+@EventBusSubscriber(modid = TeaAroma.MODID)
 public class CupEntity extends SyncedBlockEntity {
     private final ItemStackHandler inventory;
-    private final LazyOptional<IItemHandler> inputHandler;
 
-    public CupEntity(BlockPos pPos, BlockState pBlockState) {
-        super(ModBlockEntities.CUP.get(), pPos, pBlockState);
+    public CupEntity(BlockPos pos, BlockState state) {
+        super(ModBlockEntities.CUP.get(), pos, state);
         this.inventory = this.createHandler();
-        this.inputHandler = LazyOptional.of(() -> new CupItemHandler(inventory));
     }
 
     private ItemStackHandler createHandler() {
@@ -69,27 +66,29 @@ public class CupEntity extends SyncedBlockEntity {
         return this.inventory;
     }
 
-    @Override
-    public void load(CompoundTag pTag) {
-        super.load(pTag);
-        this.inventory.deserializeNBT(pTag.getCompound("inventory"));
+    public ItemStack getItemStack(int i) {
+        return this.inventory.getStackInSlot(i).copy();
     }
 
     @Override
-    protected void saveAdditional(CompoundTag pTag) {
-        super.saveAdditional(pTag);
-        pTag.put("inventory", this.inventory.serializeNBT());
+    protected void loadAdditional(CompoundTag pTag, HolderLookup.Provider pRegistries) {
+        super.loadAdditional(pTag, pRegistries);
+        this.inventory.deserializeNBT(pRegistries, pTag.getCompound("inventory"));
     }
 
     @Override
-    public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-        return cap.equals(ForgeCapabilities.ITEM_HANDLER) ? this.inputHandler.cast() : super.getCapability(cap, side);
+    protected void saveAdditional(CompoundTag pTag, HolderLookup.Provider pRegistries) {
+        super.saveAdditional(pTag, pRegistries);
+        pTag.put("inventory", this.inventory.serializeNBT(pRegistries));
     }
 
-    @Override
-    public void setRemoved() {
-        super.setRemoved();
-        this.inputHandler.invalidate();
+    @SubscribeEvent
+    public static void registerCapabilities(RegisterCapabilitiesEvent event) {
+        event.registerBlockEntity(
+                Capabilities.ItemHandler.BLOCK,
+                ModBlockEntities.CUP.get(),
+                (be, context) -> new CupItemHandler(be.getInventory())
+        );
     }
 
     public boolean isEmpty() {
@@ -122,10 +121,10 @@ public class CupEntity extends SyncedBlockEntity {
         return false;
     }
 
-    public boolean extractItem(CupEntity cupEntity, Player player, InteractionHand hand) {
-        if (!cupEntity.isEmpty()) {
-            ItemStack firstStack = cupEntity.getInventory().getStackInSlot(0);
-            ItemStack secondStack = cupEntity.getInventory().getStackInSlot(1);
+    public boolean extractItem(Player player, InteractionHand hand) {
+        if (!this.isEmpty() && player.getItemInHand(hand).isEmpty()) {
+            ItemStack firstStack = inventory.getStackInSlot(0);
+            ItemStack secondStack = inventory.getStackInSlot(1);
             if (!secondStack.isEmpty()) {
                 player.setItemInHand(hand, secondStack.split(1));
             } else {
@@ -135,5 +134,4 @@ public class CupEntity extends SyncedBlockEntity {
         }
         return false;
     }
-
 }

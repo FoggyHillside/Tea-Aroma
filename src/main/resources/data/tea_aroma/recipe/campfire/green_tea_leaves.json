@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:campfire_cooking",
+  "category": "misc",
+  "cookingtime": 600,
+  "experience": 0.35,
+  "ingredient": {
+    "item": "tea_aroma:tea_in_processing_0_0"
+  },
+  "result": {
+    "count": 1,
+    "id": "tea_aroma:green_tea_leaves"
+  }
+}

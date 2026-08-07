@@ -1,10 +1,8 @@
 package cn.foggyhillside.tea_aroma.blocks.entities.inventory;
 
-import cn.foggyhillside.tea_aroma.ModCompat;
 import cn.foggyhillside.tea_aroma.registry.ModTags;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.IItemHandlerModifiable;
-import org.jetbrains.annotations.NotNull;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
 
 public class CupItemHandler implements IItemHandlerModifiable {
     private final IItemHandlerModifiable itemHandler;
@@ -14,7 +12,7 @@ public class CupItemHandler implements IItemHandlerModifiable {
     }
 
     @Override
-    public void setStackInSlot(int slot, @NotNull ItemStack stack) {
+    public void setStackInSlot(int slot, ItemStack stack) {
         this.itemHandler.setStackInSlot(slot, stack);
     }
 
@@ -24,20 +22,20 @@ public class CupItemHandler implements IItemHandlerModifiable {
     }
 
     @Override
-    public @NotNull ItemStack getStackInSlot(int slot) {
+    public ItemStack getStackInSlot(int slot) {
         return itemHandler.getStackInSlot(slot);
     }
 
     @Override
-    public @NotNull ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
-        if (stack.is(ModTags.TEA_INGREDIENTS) || (ModCompat.isSimplyTeaLoaded() && stack.is(ModTags.SIMPLYTEA_INGREDIENTS))) {
+    public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+        if (stack.is(ModTags.TEA_INGREDIENTS)) {
             return itemHandler.insertItem(slot, stack, simulate);
         }
         return stack;
     }
 
     @Override
-    public @NotNull ItemStack extractItem(int slot, int amount, boolean simulate) {
+    public ItemStack extractItem(int slot, int amount, boolean simulate) {
         return itemHandler.extractItem(slot, amount, simulate);
     }
 
@@ -47,7 +45,7 @@ public class CupItemHandler implements IItemHandlerModifiable {
     }
 
     @Override
-    public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+    public boolean isItemValid(int slot, ItemStack stack) {
         return true;
     }
 }

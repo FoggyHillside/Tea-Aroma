@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "1 1",
+    "111"
+  ],
+  "key": {
+    "1": {
+      "item": "minecraft:bamboo"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "tea_aroma:bamboo_tray"
+  }
+}

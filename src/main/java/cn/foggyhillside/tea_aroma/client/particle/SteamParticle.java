@@ -6,14 +6,14 @@ import net.minecraft.core.particles.SimpleParticleType;
 import org.jetbrains.annotations.Nullable;
 
 public class SteamParticle extends TextureSheetParticle {
-    protected SteamParticle(ClientLevel pLevel, double pX, double pY, double pZ, double motionX, double motionY, double motionZ) {
-        super(pLevel, pX, pY, pZ);
+    protected SteamParticle(ClientLevel pLevel, double pX, double pY, double pZ, double pXSpeed, double pYSpeed, double pZSpeed) {
+        super(pLevel, pX, pY, pZ, pXSpeed, pYSpeed, pZSpeed);
         this.scale(2.0F);
         this.setSize(0.25F, 0.25F);
         this.lifetime = this.random.nextInt(4) + 8;
-        this.xd = motionX;
-        this.yd = motionY + (double) (this.random.nextFloat() / 500.0F);
-        this.zd = motionZ;
+        this.xd = pXSpeed;
+        this.yd = pYSpeed + (double) (this.random.nextFloat() / 500.0F);
+        this.zd = pZSpeed;
     }
 
     @Override
@@ -45,8 +45,8 @@ public class SteamParticle extends TextureSheetParticle {
         }
 
         @Override
-        public @Nullable Particle createParticle(SimpleParticleType simpleParticleType, ClientLevel clientLevel, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
-            SteamParticle particle = new SteamParticle(clientLevel, x, y + 0.3, z, xSpeed, ySpeed, zSpeed);
+        public @Nullable Particle createParticle(SimpleParticleType pType, ClientLevel pLevel, double pX, double pY, double pZ, double pXSpeed, double pYSpeed, double pZSpeed) {
+            SteamParticle particle = new SteamParticle(pLevel, pX, pY + 0.3, pZ, pXSpeed, pYSpeed, pZSpeed);
             particle.setAlpha(0.6F);
             particle.pickSprite(this.spriteSet);
             return particle;

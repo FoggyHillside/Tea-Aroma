@@ -1,13 +1,15 @@
 package cn.foggyhillside.tea_aroma.blocks.entities;
 
 import cn.foggyhillside.tea_aroma.blocks.KettleBlock;
-import cn.foggyhillside.tea_aroma.blocks.SyncedBlockEntity;
-import cn.foggyhillside.tea_aroma.blocks.states.KettleLiquid;
+import cn.foggyhillside.tea_aroma.blocks.entities.states.KettleLiquid;
+import cn.foggyhillside.tea_aroma.component.KettleContents;
 import cn.foggyhillside.tea_aroma.registry.ModBlockEntities;
+import cn.foggyhillside.tea_aroma.registry.ModDataComponents;
 import cn.foggyhillside.tea_aroma.registry.ModParticleTypes;
 import cn.foggyhillside.tea_aroma.registry.ModTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
@@ -22,20 +24,27 @@ public class KettleEntity extends SyncedBlockEntity {
     private static final int BOIL = 160;
     private static final float COOLING_CHANCE = 0.01F;
 
-    public KettleEntity(BlockPos pPos, BlockState pBlockState) {
-        super(ModBlockEntities.KETTLE.get(), pPos, pBlockState);
+    public KettleEntity(BlockPos pos, BlockState state) {
+        super(ModBlockEntities.KETTLE.get(), pos, state);
     }
 
     @Override
-    protected void saveAdditional(CompoundTag pTag) {
-        super.saveAdditional(pTag);
+    protected void loadAdditional(CompoundTag pTag, HolderLookup.Provider pRegistries) {
+        super.loadAdditional(pTag, pRegistries);
+        this.boilProgress = pTag.getInt("boil_progress");
+    }
+
+    @Override
+    protected void saveAdditional(CompoundTag pTag, HolderLookup.Provider pRegistries) {
+        super.saveAdditional(pTag, pRegistries);
         pTag.putInt("boil_progress", this.boilProgress);
     }
 
     @Override
-    public void load(CompoundTag pTag) {
-        super.load(pTag);
-        this.boilProgress = pTag.getInt("boil_progress");
+    protected void applyImplicitComponents(DataComponentInput pComponentInput) {
+        super.applyImplicitComponents(pComponentInput);
+        KettleContents contents = pComponentInput.getOrDefault(ModDataComponents.KETTLE_CONTENTS.get(), KettleContents.EMPTY);
+        this.boilProgress = contents.boil_progress();
     }
 
     public static boolean isHeated(Level level, BlockPos pos) {
@@ -137,5 +146,14 @@ public class KettleEntity extends SyncedBlockEntity {
                 }
             }
         }
+    }
+
+    public int getBoilProgress() {
+        return this.boilProgress;
+    }
+
+    public void setBoilProgress(int progress) {
+        this.boilProgress = progress;
+        setChanged();
     }
 }

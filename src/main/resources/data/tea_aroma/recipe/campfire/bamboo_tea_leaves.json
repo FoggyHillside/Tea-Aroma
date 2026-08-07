@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:campfire_cooking",
+  "category": "misc",
+  "cookingtime": 600,
+  "experience": 0.35,
+  "ingredient": {
+    "tag": "tea_aroma:bamboo_leaves"
+  },
+  "result": {
+    "count": 1,
+    "id": "tea_aroma:bamboo_tea_leaves"
+  }
+}

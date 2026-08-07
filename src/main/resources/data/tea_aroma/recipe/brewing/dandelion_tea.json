@@ -1,0 +1,12 @@
+{
+  "type": "tea_aroma:brewing",
+  "ingredients": [
+    {
+      "item": "tea_aroma:dandelion_tea_leaves"
+    }
+  ],
+  "result": {
+    "id": "tea_aroma:dandelion_tea"
+  },
+  "liquid_type": "boiling_water"
+}

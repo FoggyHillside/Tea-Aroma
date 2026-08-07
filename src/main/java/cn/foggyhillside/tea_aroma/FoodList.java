@@ -6,11 +6,11 @@ import net.minecraft.world.food.FoodProperties;
 
 public class FoodList {
     public static FoodProperties.Builder tea() {
-        return new FoodProperties.Builder().nutrition(1).saturationMod(0.25F).alwaysEat();
+        return new FoodProperties.Builder().nutrition(1).saturationModifier(0.25F).alwaysEdible();
     }
 
     public static FoodProperties.Builder teaLatte() {
-        return new FoodProperties.Builder().nutrition(2).saturationMod(0.25F).alwaysEat();
+        return new FoodProperties.Builder().nutrition(2).saturationModifier(0.25F).alwaysEdible();
     }
 
     //Tea

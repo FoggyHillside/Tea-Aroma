@@ -1,9 +1,0 @@
-{
-  "type": "tea_aroma:blending",
-  "tea": {
-    "item": "tea_aroma:black_tea"
-  },
-  "result": {
-    "item": "tea_aroma:black_tea_latte"
-  }
-}

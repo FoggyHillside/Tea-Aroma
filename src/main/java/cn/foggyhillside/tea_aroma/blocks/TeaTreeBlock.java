@@ -2,6 +2,7 @@ package cn.foggyhillside.tea_aroma.blocks;
 
 import cn.foggyhillside.tea_aroma.registry.ModItems;
 import cn.foggyhillside.tea_aroma.registry.ModSounds;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -9,6 +10,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -27,12 +29,14 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.common.ForgeHooks;
+import net.neoforged.neoforge.common.CommonHooks;
 
 public class TeaTreeBlock extends BushBlock implements BonemealableBlock {
+    public static final MapCodec<TeaTreeBlock> CODEC = simpleCodec(TeaTreeBlock::new);
     public static final int MAX_AGE = 3;
     public static final IntegerProperty AGE = BlockStateProperties.AGE_3;
     private static final VoxelShape SAPLING_SHAPE = Block.box(3.0F, 0.0F, 3.0F, 13.0F, 8.0F, 13.0F);
@@ -44,12 +48,12 @@ public class TeaTreeBlock extends BushBlock implements BonemealableBlock {
     }
 
     @Override
-    public ItemStack getCloneItemStack(BlockGetter pLevel, BlockPos pPos, BlockState pState) {
+    public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
         return new ItemStack(ModItems.TEA_SAPLING.get());
     }
 
     @Override
-    public VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
+    protected VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
         if (pState.getValue(AGE) == 0) {
             return SAPLING_SHAPE;
         } else {
@@ -58,20 +62,19 @@ public class TeaTreeBlock extends BushBlock implements BonemealableBlock {
     }
 
     @Override
-    public boolean isRandomlyTicking(BlockState pState) {
+    protected boolean isRandomlyTicking(BlockState pState) {
         return pState.getValue(AGE) < 3;
     }
 
     @Override
-    public void randomTick(BlockState pState, ServerLevel pLevel, BlockPos pPos, RandomSource pRandom) {
+    protected void randomTick(BlockState pState, ServerLevel pLevel, BlockPos pPos, RandomSource pRandom) {
         int i = pState.getValue(AGE);
-        if (i < MAX_AGE && pLevel.getRawBrightness(pPos.above(), 0) >= 9 && ForgeHooks.onCropsGrowPre(pLevel, pPos, pState, pRandom.nextInt(5) == 0)) {
+        if (i < MAX_AGE && pLevel.getRawBrightness(pPos.above(), 0) >= 9 && CommonHooks.canCropGrow(pLevel, pPos, pState, pRandom.nextInt(5) == 0)) {
             BlockState blockstate = pState.setValue(AGE, i + 1);
-            pLevel.setBlock(pPos, blockstate, 2);
+            pLevel.setBlock(pPos, blockstate, Block.UPDATE_CLIENTS);
             pLevel.gameEvent(GameEvent.BLOCK_CHANGE, pPos, GameEvent.Context.of(blockstate));
-            ForgeHooks.onCropsGrowPost(pLevel, pPos, pState);
+            CommonHooks.fireCropGrowPost(pLevel, pPos, pState);
         }
-
     }
 
     @Override
@@ -85,28 +88,45 @@ public class TeaTreeBlock extends BushBlock implements BonemealableBlock {
     }
 
     @Override
-    public void entityInside(BlockState pState, Level pLevel, BlockPos pPos, Entity pEntity) {
+    protected void entityInside(BlockState pState, Level pLevel, BlockPos pPos, Entity pEntity) {
         if (pEntity instanceof LivingEntity && pEntity.getType() != EntityType.BEE) {
             pEntity.makeStuckInBlock(pState, new Vec3(0.8F, 0.75F, 0.8F));
         }
     }
 
     @Override
-    public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
+    protected InteractionResult useWithoutItem(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, BlockHitResult pHitResult) {
+        int i = pState.getValue(AGE);
+        boolean flag = i == 3;
+        if (i > 1) {
+            int j = 1 + pLevel.random.nextInt(2);
+            popResource(pLevel, pPos, new ItemStack(ModItems.FRESH_TEA_LEAVES.get(), j + (flag ? 1 : 0)));
+            pLevel.playSound(null, pPos, ModSounds.ITEM_TEA_LEAVES_PICK_FROM_TREE.get(), SoundSource.BLOCKS, 1.0F, 0.8F + pLevel.random.nextFloat() * 0.4F);
+            BlockState blockstate = pState.setValue(AGE, 1);
+            pLevel.setBlock(pPos, blockstate, Block.UPDATE_CLIENTS);
+            pLevel.gameEvent(GameEvent.BLOCK_CHANGE, pPos, GameEvent.Context.of(pPlayer, blockstate));
+            return InteractionResult.sidedSuccess(pLevel.isClientSide);
+        } else {
+            return super.useWithoutItem(pState, pLevel, pPos, pPlayer, pHitResult);
+        }
+    }
+
+    @Override
+    protected ItemInteractionResult useItemOn(ItemStack pStack, BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHitResult) {
         int i = pState.getValue(AGE);
         boolean flag = i == 3;
         if (!flag && pPlayer.getItemInHand(pHand).is(Items.BONE_MEAL)) {
-            return InteractionResult.PASS;
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         } else if (i > 1) {
             int j = 1 + pLevel.random.nextInt(2);
             popResource(pLevel, pPos, new ItemStack(ModItems.FRESH_TEA_LEAVES.get(), j + (flag ? 1 : 0)));
             pLevel.playSound(null, pPos, ModSounds.ITEM_TEA_LEAVES_PICK_FROM_TREE.get(), SoundSource.BLOCKS, 1.0F, 0.8F + pLevel.random.nextFloat() * 0.4F);
             BlockState blockstate = pState.setValue(AGE, 1);
-            pLevel.setBlock(pPos, blockstate, 2);
+            pLevel.setBlock(pPos, blockstate, Block.UPDATE_CLIENTS);
             pLevel.gameEvent(GameEvent.BLOCK_CHANGE, pPos, GameEvent.Context.of(pPlayer, blockstate));
-            return InteractionResult.sidedSuccess(pLevel.isClientSide);
+            return ItemInteractionResult.sidedSuccess(pLevel.isClientSide);
         } else {
-            return super.use(pState, pLevel, pPos, pPlayer, pHand, pHit);
+            return super.useItemOn(pStack, pState, pLevel, pPos, pPlayer, pHand, pHitResult);
         }
     }
 
@@ -116,18 +136,23 @@ public class TeaTreeBlock extends BushBlock implements BonemealableBlock {
     }
 
     @Override
-    public boolean isValidBonemealTarget(LevelReader levelReader, BlockPos blockPos, BlockState blockState, boolean b) {
-        return blockState.getValue(AGE) < 3;
+    protected MapCodec<? extends BushBlock> codec() {
+        return CODEC;
     }
 
     @Override
-    public boolean isBonemealSuccess(Level level, RandomSource randomSource, BlockPos blockPos, BlockState blockState) {
+    public boolean isValidBonemealTarget(LevelReader pLevel, BlockPos pPos, BlockState pState) {
+        return pState.getValue(AGE) < 3;
+    }
+
+    @Override
+    public boolean isBonemealSuccess(Level pLevel, RandomSource pRandom, BlockPos pPos, BlockState pState) {
         return true;
     }
 
     @Override
-    public void performBonemeal(ServerLevel serverLevel, RandomSource randomSource, BlockPos blockPos, BlockState blockState) {
-        int i = Math.min(3, blockState.getValue(AGE) + 1);
-        serverLevel.setBlock(blockPos, blockState.setValue(AGE, i), 2);
+    public void performBonemeal(ServerLevel pLevel, RandomSource pRandom, BlockPos pPos, BlockState pState) {
+        int i = Math.min(3, pState.getValue(AGE) + 1);
+        pLevel.setBlock(pPos, pState.setValue(AGE, i), Block.UPDATE_CLIENTS);
     }
 }

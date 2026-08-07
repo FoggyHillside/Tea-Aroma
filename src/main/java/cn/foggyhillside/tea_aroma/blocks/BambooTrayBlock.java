@@ -4,12 +4,14 @@ import cn.foggyhillside.tea_aroma.blocks.entities.BambooTrayEntity;
 import cn.foggyhillside.tea_aroma.registry.ModBlockEntities;
 import cn.foggyhillside.tea_aroma.registry.ModBlockStateProperties;
 import cn.foggyhillside.tea_aroma.registry.ModSounds;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
@@ -29,6 +31,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 public class BambooTrayBlock extends BaseEntityBlock {
+    public static final MapCodec<BambooTrayBlock> CODEC = simpleCodec(BambooTrayBlock::new);
     public static final IntegerProperty PROCESS_TYPE = ModBlockStateProperties.PROCESS_TYPE;
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     protected static final VoxelShape SHAPE = Block.box(0.0F, 0.0F, 0.0F, 16.0F, 4.0F, 16.0F);
@@ -39,39 +42,59 @@ public class BambooTrayBlock extends BaseEntityBlock {
     }
 
     @Override
-    public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
-        if (pHand.equals(InteractionHand.MAIN_HAND) && pLevel.getBlockEntity(pPos) instanceof BambooTrayEntity entity) {
-            ItemStack heldStack = pPlayer.getItemInHand(pHand);
-            if (!heldStack.isEmpty()) {
-                if (!pLevel.isClientSide() && !pState.getValue(PROCESS_TYPE).equals(3) && !entity.isFull() && entity.addItem(heldStack, pPlayer)) {
-                    return InteractionResult.SUCCESS;
-                }
-                return InteractionResult.CONSUME;
-            } else if (pPlayer.isShiftKeyDown()) {
+    protected ItemInteractionResult useItemOn(ItemStack pStack, BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHitResult) {
+        if (pLevel.getBlockEntity(pPos) instanceof BambooTrayEntity entity) {
+            if (!pState.getValue(PROCESS_TYPE).equals(3) && !entity.isFull() && entity.addItem(pStack, pPlayer)) {
+                return ItemInteractionResult.SUCCESS;
+            }
+        }
+        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+    }
+
+    @Override
+    protected InteractionResult useWithoutItem(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, BlockHitResult pHitResult) {
+        if (!pPlayer.getMainHandItem().isEmpty()) {
+            return InteractionResult.PASS;
+        }
+
+        if (pLevel.getBlockEntity(pPos) instanceof BambooTrayEntity entity) {
+            if (pPlayer.isShiftKeyDown()) {
                 if (!entity.isEmpty()) {
-                    Containers.dropContents(pLevel, pPos, entity.getInventoryList());
-                    entity.emptyInventory();
-                    pLevel.updateNeighbourForOutputSignal(pPos, this);
+                    if (!pLevel.isClientSide()) {
+                        Containers.dropContents(pLevel, pPos, entity.getInventoryList());
+                        entity.emptyInventory();
+                        pLevel.updateNeighbourForOutputSignal(pPos, this);
+                    }
                     return InteractionResult.SUCCESS;
                 }
-            } else {
-                if (pState.getValue(PROCESS_TYPE).equals(2)) {
+            } else if (pState.getValue(PROCESS_TYPE).equals(2)) {
+                if (!pLevel.isClientSide()) {
                     entity.playerProcess();
                     pLevel.playSound(null, pPos, ModSounds.TEA_PROCESSING_2.get(), SoundSource.BLOCKS, 1.0F, 0.8F + pLevel.random.nextFloat() * 0.4F);
-                    return InteractionResult.SUCCESS;
                 }
+                return InteractionResult.SUCCESS;
             }
         }
         return InteractionResult.PASS;
     }
 
     @Override
-    public RenderShape getRenderShape(BlockState pState) {
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return CODEC;
+    }
+
+    @Override
+    public @Nullable BlockEntity newBlockEntity(BlockPos pPos, BlockState pState) {
+        return new BambooTrayEntity(pPos, pState);
+    }
+
+    @Override
+    protected RenderShape getRenderShape(BlockState pState) {
         return RenderShape.MODEL;
     }
 
     @Override
-    public VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
+    protected VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
         return SHAPE;
     }
 
@@ -82,7 +105,7 @@ public class BambooTrayBlock extends BaseEntityBlock {
     }
 
     @Override
-    public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pMovedByPiston) {
+    protected void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pMovedByPiston) {
         if (pState.getBlock() != pNewState.getBlock()) {
             BlockEntity blockEntity = pLevel.getBlockEntity(pPos);
             if (blockEntity instanceof BambooTrayEntity entity) {
@@ -95,12 +118,12 @@ public class BambooTrayBlock extends BaseEntityBlock {
     }
 
     @Override
-    public boolean hasAnalogOutputSignal(BlockState pState) {
+    protected boolean hasAnalogOutputSignal(BlockState pState) {
         return true;
     }
 
     @Override
-    public int getAnalogOutputSignal(BlockState pState, Level pLevel, BlockPos pPos) {
+    protected int getAnalogOutputSignal(BlockState pState, Level pLevel, BlockPos pPos) {
         BlockEntity blockEntity = pLevel.getBlockEntity(pPos);
         if (blockEntity instanceof BambooTrayEntity entity) {
             if (!entity.getInventory().getStackInSlot(0).isEmpty() && !entity.getInventory().getStackInSlot(1).isEmpty()) {
@@ -111,7 +134,7 @@ public class BambooTrayBlock extends BaseEntityBlock {
                 return 8;
             }
         } else {
-            return 0;
+            return super.getAnalogOutputSignal(pState, pLevel, pPos);
         }
     }
 
@@ -126,23 +149,17 @@ public class BambooTrayBlock extends BaseEntityBlock {
     }
 
     @Override
-    public @Nullable BlockEntity newBlockEntity(BlockPos pPos, BlockState pState) {
-        return new BambooTrayEntity(pPos, pState);
-    }
-
-    @Override
-    public BlockState rotate(BlockState pState, Rotation pRotation) {
+    protected BlockState rotate(BlockState pState, Rotation pRotation) {
         return pState.setValue(FACING, pRotation.rotate(pState.getValue(FACING)));
     }
 
     @Override
-    public BlockState mirror(BlockState pState, Mirror pMirror) {
-        return pState.rotate(pMirror.getRotation(pState.getValue(FACING)));
+    protected BlockState mirror(BlockState pState, Mirror pMirror) {
+        return pState.setValue(FACING, pMirror.mirror(pState.getValue(FACING)));
     }
 
     @Override
     public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level pLevel, BlockState pState, BlockEntityType<T> pBlockEntityType) {
         return pLevel.isClientSide ? null : createTickerHelper(pBlockEntityType, ModBlockEntities.BAMBOO_TRAY.get(), BambooTrayEntity::tick);
     }
-
 }

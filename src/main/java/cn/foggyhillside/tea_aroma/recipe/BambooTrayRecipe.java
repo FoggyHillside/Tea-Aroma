@@ -1,42 +1,38 @@
 package cn.foggyhillside.tea_aroma.recipe;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
-import net.minecraft.world.SimpleContainer;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.crafting.CraftingHelper;
-import net.minecraftforge.common.util.RecipeMatcher;
+import net.neoforged.neoforge.common.util.RecipeMatcher;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BambooTrayRecipe implements Recipe<SimpleContainer> {
-
-    private final ResourceLocation id;
-
+public class BambooTrayRecipe implements Recipe<RecipeInput> {
     private final ItemStack output;
-
     private final NonNullList<Ingredient> ingredients;
-
     private final int processType;
 
-    public BambooTrayRecipe(ResourceLocation id, ItemStack output, NonNullList<Ingredient> ingredients, int processType) {
-        this.id = id;
+    public BambooTrayRecipe(ItemStack output, NonNullList<Ingredient> ingredients, int processType) {
         this.output = output;
         this.ingredients = ingredients;
         this.processType = processType;
+    }
+
+    public int getProcessType() {
+        return processType;
+    }
+
+    public ItemStack getOutput() {
+        return output;
     }
 
     @Override
@@ -44,19 +40,15 @@ public class BambooTrayRecipe implements Recipe<SimpleContainer> {
         return ingredients;
     }
 
-    public int getProcessType() {
-        return processType;
-    }
-
     @Override
-    public boolean matches(SimpleContainer inventory, Level level) {
-        if (level.isClientSide) {
+    public boolean matches(RecipeInput pInput, Level pLevel) {
+        if (pLevel.isClientSide) {
             return false;
         }
         List<ItemStack> inputs = new ArrayList<>();
 
         for (int j = 0; j < 2; j++) {
-            ItemStack itemstack = inventory.getItem(j);
+            ItemStack itemstack = pInput.getItem(j);
             if (!itemstack.isEmpty()) {
                 inputs.add(itemstack);
             }
@@ -65,23 +57,18 @@ public class BambooTrayRecipe implements Recipe<SimpleContainer> {
     }
 
     @Override
-    public ItemStack assemble(SimpleContainer container, RegistryAccess access) {
+    public ItemStack assemble(RecipeInput pInput, HolderLookup.Provider pRegistries) {
         return output;
     }
 
     @Override
-    public boolean canCraftInDimensions(int p_43999_, int p_44000_) {
+    public boolean canCraftInDimensions(int pWidth, int pHeight) {
         return true;
     }
 
     @Override
-    public ItemStack getResultItem(RegistryAccess access) {
-        return output.copy();
-    }
-
-    @Override
-    public ResourceLocation getId() {
-        return id;
+    public ItemStack getResultItem(HolderLookup.Provider pRegistries) {
+        return output;
     }
 
     @Override
@@ -95,65 +82,48 @@ public class BambooTrayRecipe implements Recipe<SimpleContainer> {
     }
 
     public static class Type implements RecipeType<BambooTrayRecipe> {
-        private Type() {
-        }
-
-        public static final Type INSTANCE = new Type();
+        public static final BambooTrayRecipe.Type INSTANCE = new BambooTrayRecipe.Type();
     }
 
     public static class Serializer implements RecipeSerializer<BambooTrayRecipe> {
         public static final Serializer INSTANCE = new Serializer();
+        public static final MapCodec<BambooTrayRecipe> CODEC = RecordCodecBuilder.mapCodec(instance ->
+                instance.group(
+                        Codec.INT.optionalFieldOf("process_type", 1).forGetter(r -> r.processType),
+                        Ingredient.CODEC.listOf().fieldOf("ingredients").forGetter(r -> r.ingredients),
+                        ItemStack.OPTIONAL_CODEC.fieldOf("result").forGetter(r -> r.output)
+                ).apply(instance, (processType, ingredients, output) -> {
+                    if (processType < 1 || processType > 3)
+                        throw new IllegalArgumentException("Invalid operation type: " + processType);
+                    if (ingredients.isEmpty())
+                        throw new IllegalArgumentException("No ingredients for bamboo tray recipe");
+                    if (ingredients.size() > 2)
+                        throw new IllegalArgumentException("Too many ingredients! The maximum is 2");
+                    NonNullList<Ingredient> list = NonNullList.create();
+                    list.addAll(ingredients);
+                    return new BambooTrayRecipe(output, list, processType);
+                })
+        );
+        public static final StreamCodec<RegistryFriendlyByteBuf, BambooTrayRecipe> STREAM_CODEC =
+                StreamCodec.composite(
+                        ByteBufCodecs.VAR_INT, r -> r.processType,
+                        Ingredient.CONTENTS_STREAM_CODEC.apply(ByteBufCodecs.list()), r -> r.ingredients,
+                        ItemStack.OPTIONAL_STREAM_CODEC, r -> r.output,
+                        (processType, ingredients, output) -> {
+                            NonNullList<Ingredient> list = NonNullList.create();
+                            list.addAll(ingredients);
+                            return new BambooTrayRecipe(output, list, processType);
+                        }
+                );
 
         @Override
-        public BambooTrayRecipe fromJson(ResourceLocation location, JsonObject json) {
-            int processType = GsonHelper.getAsInt(json, "process_type", 1);
-            NonNullList<Ingredient> ingredients = readIngredients(GsonHelper.getAsJsonArray(json, "ingredients"));
-            if (processType < 1 || processType > 3) {
-                throw new JsonParseException("Invalid operation type");
-            } else if (ingredients.isEmpty()) {
-                throw new JsonParseException("No ingredients for bamboo tray recipe");
-            } else if (ingredients.size() > 2) {
-                throw new JsonParseException("Too many ingredients for bamboo tray recipe! The max is 2");
-            } else {
-                ItemStack output = CraftingHelper.getItemStack(GsonHelper.getAsJsonObject(json, "result"), true);
-                return new BambooTrayRecipe(location, output , ingredients, processType);
-            }
+        public MapCodec<BambooTrayRecipe> codec() {
+            return CODEC;
         }
 
-        private static NonNullList<Ingredient> readIngredients(JsonArray ingredientArray) {
-            NonNullList<Ingredient> nonnulllist = NonNullList.create();
-
-            for (int i = 0; i < ingredientArray.size(); ++i) {
-                Ingredient ingredient = Ingredient.fromJson(ingredientArray.get(i));
-                if (!ingredient.isEmpty()) {
-                    nonnulllist.add(ingredient);
-                }
-            }
-            return nonnulllist;
-        }
-
-        @Nullable
-        public BambooTrayRecipe fromNetwork(ResourceLocation id, FriendlyByteBuf buffer) {
-            int i = buffer.readVarInt();
-            NonNullList<Ingredient> inputItemsIn = NonNullList.withSize(i, Ingredient.EMPTY);
-
-            inputItemsIn.replaceAll(ignored -> Ingredient.fromNetwork(buffer));
-
-            ItemStack output = buffer.readItem();
-            int type = buffer.readVarInt();
-            return new BambooTrayRecipe(id, output , inputItemsIn, type);
-        }
-
-        public void toNetwork(FriendlyByteBuf buffer, BambooTrayRecipe recipe) {
-            buffer.writeVarInt(recipe.ingredients.size());
-
-            for (Ingredient ingredient : recipe.ingredients) {
-                ingredient.toNetwork(buffer);
-            }
-
-            buffer.writeItem(recipe.output);
-            buffer.writeVarInt(recipe.processType);
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, BambooTrayRecipe> streamCodec() {
+            return STREAM_CODEC;
         }
     }
-
 }

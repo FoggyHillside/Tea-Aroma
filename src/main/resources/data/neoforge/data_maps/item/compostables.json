@@ -1,0 +1,85 @@
+{
+  "values": {
+    "tea_aroma:bamboo_leaves": {
+      "chance": 0.3
+    },
+    "tea_aroma:fresh_tea_leaves": {
+      "chance": 0.3
+    },
+    "tea_aroma:tea_sapling": {
+      "chance": 0.3
+    },
+    "tea_aroma:bamboo_tea_leaves": {
+      "chance": 0.3
+    },
+    "tea_aroma:white_tea_leaves": {
+      "chance": 0.3
+    },
+    "tea_aroma:green_tea_leaves": {
+      "chance": 0.3
+    },
+    "tea_aroma:black_tea_leaves": {
+      "chance": 0.3
+    },
+    "tea_aroma:yellow_tea_leaves": {
+      "chance": 0.3
+    },
+    "tea_aroma:oolong_tea_leaves": {
+      "chance": 0.3
+    },
+    "tea_aroma:dark_tea_leaves": {
+      "chance": 0.3
+    },
+    "tea_aroma:rose_tea_leaves": {
+      "chance": 0.3
+    },
+    "tea_aroma:dandelion_tea_leaves": {
+      "chance": 0.3
+    },
+    "tea_aroma:lilac_tea_leaves": {
+      "chance": 0.3
+    },
+    "tea_aroma:blue_orchid_tea_leaves": {
+      "chance": 0.3
+    },
+    "tea_aroma:rose_tea_in_processing": {
+      "chance": 0.3
+    },
+    "tea_aroma:dandelion_tea_in_processing": {
+      "chance": 0.3
+    },
+    "tea_aroma:lilac_tea_in_processing": {
+      "chance": 0.3
+    },
+    "tea_aroma:blue_orchid_tea_in_processing": {
+      "chance": 0.3
+    },
+    "tea_aroma:tea_in_processing_0": {
+      "chance": 0.3
+    },
+    "tea_aroma:tea_in_processing_0_0": {
+      "chance": 0.3
+    },
+    "tea_aroma:tea_in_processing_0_0_0": {
+      "chance": 0.3
+    },
+    "tea_aroma:tea_in_processing_1": {
+      "chance": 0.3
+    },
+    "tea_aroma:tea_in_processing_1_0": {
+      "chance": 0.3
+    },
+    "tea_aroma:dark_tea_in_processing": {
+      "chance": 0.3
+    },
+    "tea_aroma:black_tea_in_processing": {
+      "chance": 0.3
+    },
+    "tea_aroma:oolong_tea_in_processing_0": {
+      "chance": 0.3
+    },
+    "tea_aroma:oolong_tea_in_processing_1": {
+      "chance": 0.3
+    }
+  }
+}
