@@ -20,6 +20,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.Cow;
@@ -56,6 +57,21 @@ public class KettleItem extends BlockItem {
     }
 
     @Override
+    public InteractionResultHolder<ItemStack> use(Level pLevel, Player pPlayer, InteractionHand pUsedHand) {
+        if (pUsedHand == InteractionHand.MAIN_HAND && pPlayer.isShiftKeyDown()) {
+            ItemStack stack = pPlayer.getItemInHand(pUsedHand);
+            if (!getStackLiquid(stack).equals(KettleLiquid.NONE.toString()) || getStackAmount(stack) > 0) {
+                if (!pLevel.isClientSide()) {
+                    stack.set(ModDataComponents.KETTLE_CONTENTS.get(), KettleContents.EMPTY);
+                }
+                pPlayer.playSound(ModSounds.KETTLE_POUR.get(), 1.0F, 1.0F);
+                return InteractionResultHolder.sidedSuccess(stack, pLevel.isClientSide());
+            }
+        }
+        return super.use(pLevel, pPlayer, pUsedHand);
+    }
+
+    @Override
     public InteractionResult useOn(UseOnContext pContext) {
         Level level = pContext.getLevel();
         Player player = pContext.getPlayer();
@@ -69,6 +85,13 @@ public class KettleItem extends BlockItem {
                 setStackAmount(filledStack, 3);
                 fillKettle(stack, player, filledStack, pContext.getHand());
                 player.playSound(ModSounds.KETTLE_FILL.get(), 1.0F, 1.0F);
+                return InteractionResult.SUCCESS;
+            } else if (level.getFluidState(blockpos).is(Tags.Fluids.MILK)) {
+                ItemStack filledStack = stack.copy();
+                setStackLiquid(filledStack, KettleLiquid.MILK.toString());
+                setStackAmount(filledStack, 3);
+                fillKettle(stack, player, filledStack, pContext.getHand());
+                player.playSound(SoundEvents.COW_MILK, 1.0F, 1.0F);
                 return InteractionResult.SUCCESS;
             } else if (level.getBlockState(blockpos).is(Blocks.WATER_CAULDRON)) {
                 if (level.getBlockState(blockpos).getValue(LayeredCauldronBlock.LEVEL) > 1) {
@@ -112,7 +135,7 @@ public class KettleItem extends BlockItem {
                                 if (!player.isCreative()) {
                                     consumeKettleAmount(stack);
                                 }
-                                level.playSound(null, blockPos.getX(), blockPos.getY(), blockPos.getZ(), ModSounds.TEA_BREW.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
+                                level.playSound(null, player.getX(), player.getY(), player.getZ(), ModSounds.KETTLE_POUR.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
                                 cupEntity.emptyInventory();
                                 level.setBlockAndUpdate(blockPos, result.getBlock().defaultBlockState().setValue(CupBlock.FACING, state.getValue(CupBlock.FACING)));
                                 return InteractionResult.SUCCESS;
@@ -146,7 +169,7 @@ public class KettleItem extends BlockItem {
                         if (!player.isCreative()) {
                             consumeKettleAmount(stack);
                         }
-                        level.playSound(null, blockPos.getX(), blockPos.getY(), blockPos.getZ(), ModSounds.TEA_BREW.get(), SoundSource.NEUTRAL, 1.0F, 1.0F);
+                        level.playSound(null, player.getX(), player.getY(), player.getZ(), ModSounds.KETTLE_POUR.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
                         level.setBlockAndUpdate(blockPos, result.getBlock().defaultBlockState().setValue(TeaBlock.FACING, state.getValue(TeaBlock.FACING)).setValue(TeaBlock.WITH_HONEY, state.getValue(TeaBlock.WITH_HONEY)).setValue(TeaBlock.WITH_SUGAR, state.getValue(TeaBlock.WITH_SUGAR)));
                         return InteractionResult.SUCCESS;
                     }

@@ -17,8 +17,8 @@
       }
     ]
   },
-  "block.tea_brew": {
-    "subtitle": "tea_aroma.subtitles.tea_brew",
+  "block.kettle_pour": {
+    "subtitle": "tea_aroma.subtitles.kettle.pour",
     "sounds": [
       {
         "name": "item.bottle.empty",

@@ -1,10 +1,14 @@
 package cn.foggyhillside.tea_aroma.blocks;
 
+import cn.foggyhillside.tea_aroma.blocks.entities.states.KettleLiquid;
 import cn.foggyhillside.tea_aroma.component.TeaContents;
+import cn.foggyhillside.tea_aroma.items.KettleItem;
 import cn.foggyhillside.tea_aroma.registry.ModBlockStateProperties;
 import cn.foggyhillside.tea_aroma.registry.ModDataComponents;
+import cn.foggyhillside.tea_aroma.registry.ModItems;
 import cn.foggyhillside.tea_aroma.registry.ModParticleTypes;
 import cn.foggyhillside.tea_aroma.util.Utils;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
@@ -28,10 +32,13 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public class TeaBlock extends Block {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
@@ -39,8 +46,17 @@ public class TeaBlock extends Block {
     public static final BooleanProperty WITH_SUGAR = ModBlockStateProperties.WITH_SUGAR;
     private static final VoxelShape SHAPE = Block.box(5.0F, 0.0F, 5.0F, 11.0F, 6.0F, 11.0F);
 
-    public TeaBlock(Properties properties) {
-        super(properties);
+    public final boolean isLatte;
+
+    public TeaBlock(Properties pProperties) {
+        super(pProperties);
+        this.isLatte = false;
+        this.registerDefaultState(this.getStateDefinition().any().setValue(FACING, Direction.NORTH).setValue(WITH_HONEY, false).setValue(WITH_SUGAR, false));
+    }
+
+    public TeaBlock(Properties pProperties, boolean pIsLatte) {
+        super(pProperties);
+        this.isLatte = pIsLatte;
         this.registerDefaultState(this.getStateDefinition().any().setValue(FACING, Direction.NORTH).setValue(WITH_HONEY, false).setValue(WITH_SUGAR, false));
     }
 
@@ -103,19 +119,38 @@ public class TeaBlock extends Block {
     }
 
     @Override
+    protected List<ItemStack> getDrops(BlockState pState, LootParams.Builder pParams) {
+        ItemStack stack = new ItemStack(this);
+        stack.set(ModDataComponents.TEA_CONTENTS.get(),
+                new TeaContents(pState.getValue(WITH_HONEY), pState.getValue(WITH_SUGAR)));
+        return ObjectArrayList.of(stack);
+    }
+
+    @Override
     protected InteractionResult useWithoutItem(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, BlockHitResult pHitResult) {
-        if (!pPlayer.getMainHandItem().isEmpty()) {
+        ItemStack heldStack = pPlayer.getMainHandItem();
+        if (!isLatte && heldStack.is(ModItems.KETTLE.get())
+                && KettleItem.getStackLiquid(heldStack).equals(KettleLiquid.BOILING_MILK.toString())) {
             return InteractionResult.PASS;
         }
 
-        pick(pLevel, pState, pPos, pPlayer);
+        if (!pLevel.isClientSide()) {
+            ItemStack stack = new ItemStack(pState.getBlock());
+            stack.set(ModDataComponents.TEA_CONTENTS.get(), new TeaContents(pState.getValue(WITH_HONEY), pState.getValue(WITH_SUGAR)));
+            if (pPlayer.getMainHandItem().isEmpty()) {
+                pPlayer.setItemInHand(InteractionHand.MAIN_HAND, stack);
+            } else if (!pPlayer.getInventory().add(stack)) {
+                return InteractionResult.PASS;
+            }
+            pLevel.removeBlock(pPos, false);
+        }
         return InteractionResult.SUCCESS;
     }
 
     @Override
     protected ItemInteractionResult useItemOn(ItemStack pStack, BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHitResult) {
-        if (pHand != InteractionHand.MAIN_HAND) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-        if (pLevel.isClientSide()) return ItemInteractionResult.CONSUME;
+        if (pHand != InteractionHand.MAIN_HAND || pLevel.isClientSide())
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         if (pStack.is(Items.SUGAR) && !pState.getValue(WITH_SUGAR)) {
             flavour(pLevel, pState, pPos, pPlayer, pHand, WITH_SUGAR);
             return ItemInteractionResult.SUCCESS;
@@ -131,14 +166,5 @@ public class TeaBlock extends Block {
         ItemStack held = player.getItemInHand(hand);
         Utils.addItem(held, player, held.getCraftingRemainingItem());
         level.setBlockAndUpdate(pos, state.setValue(property, true));
-    }
-
-    private void pick(Level level, BlockState state, BlockPos pos, Player player) {
-        if (!level.isClientSide()) {
-            ItemStack stack = new ItemStack(state.getBlock());
-            stack.set(ModDataComponents.TEA_CONTENTS.get(), new TeaContents(state.getValue(WITH_HONEY), state.getValue(WITH_SUGAR)));
-            player.setItemInHand(InteractionHand.MAIN_HAND, stack);
-            level.removeBlock(pos, false);
-        }
     }
 }

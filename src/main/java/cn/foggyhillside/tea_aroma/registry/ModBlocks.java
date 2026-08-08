@@ -52,26 +52,26 @@ public class ModBlocks {
             () -> new TeaBlock(BlockBehaviour.Properties.of().instabreak().noOcclusion().pushReaction(PushReaction.DESTROY)));
     //Tea Latte
     public static final Supplier<Block> BAMBOO_TEA_LATTE = BLOCKS.register("bamboo_tea_latte",
-            () -> new TeaBlock(BlockBehaviour.Properties.of().instabreak().noOcclusion().pushReaction(PushReaction.DESTROY)));
+            () -> new TeaBlock(BlockBehaviour.Properties.of().instabreak().noOcclusion().pushReaction(PushReaction.DESTROY), true));
     public static final Supplier<Block> WHITE_TEA_LATTE = BLOCKS.register("white_tea_latte",
-            () -> new TeaBlock(BlockBehaviour.Properties.of().instabreak().noOcclusion().pushReaction(PushReaction.DESTROY)));
+            () -> new TeaBlock(BlockBehaviour.Properties.of().instabreak().noOcclusion().pushReaction(PushReaction.DESTROY), true));
     public static final Supplier<Block> GREEN_TEA_LATTE = BLOCKS.register("green_tea_latte",
-            () -> new TeaBlock(BlockBehaviour.Properties.of().instabreak().noOcclusion().pushReaction(PushReaction.DESTROY)));
+            () -> new TeaBlock(BlockBehaviour.Properties.of().instabreak().noOcclusion().pushReaction(PushReaction.DESTROY), true));
     public static final Supplier<Block> BLACK_TEA_LATTE = BLOCKS.register("black_tea_latte",
-            () -> new TeaBlock(BlockBehaviour.Properties.of().instabreak().noOcclusion().pushReaction(PushReaction.DESTROY)));
+            () -> new TeaBlock(BlockBehaviour.Properties.of().instabreak().noOcclusion().pushReaction(PushReaction.DESTROY), true));
     public static final Supplier<Block> YELLOW_TEA_LATTE = BLOCKS.register("yellow_tea_latte",
-            () -> new TeaBlock(BlockBehaviour.Properties.of().instabreak().noOcclusion().pushReaction(PushReaction.DESTROY)));
+            () -> new TeaBlock(BlockBehaviour.Properties.of().instabreak().noOcclusion().pushReaction(PushReaction.DESTROY), true));
     public static final Supplier<Block> OOLONG_TEA_LATTE = BLOCKS.register("oolong_tea_latte",
-            () -> new TeaBlock(BlockBehaviour.Properties.of().instabreak().noOcclusion().pushReaction(PushReaction.DESTROY)));
+            () -> new TeaBlock(BlockBehaviour.Properties.of().instabreak().noOcclusion().pushReaction(PushReaction.DESTROY), true));
     public static final Supplier<Block> DARK_TEA_LATTE = BLOCKS.register("dark_tea_latte",
-            () -> new TeaBlock(BlockBehaviour.Properties.of().instabreak().noOcclusion().pushReaction(PushReaction.DESTROY)));
+            () -> new TeaBlock(BlockBehaviour.Properties.of().instabreak().noOcclusion().pushReaction(PushReaction.DESTROY), true));
     public static final Supplier<Block> ROSE_TEA_LATTE = BLOCKS.register("rose_tea_latte",
-            () -> new TeaBlock(BlockBehaviour.Properties.of().instabreak().noOcclusion().pushReaction(PushReaction.DESTROY)));
+            () -> new TeaBlock(BlockBehaviour.Properties.of().instabreak().noOcclusion().pushReaction(PushReaction.DESTROY), true));
     public static final Supplier<Block> DANDELION_TEA_LATTE = BLOCKS.register("dandelion_tea_latte",
-            () -> new TeaBlock(BlockBehaviour.Properties.of().instabreak().noOcclusion().pushReaction(PushReaction.DESTROY)));
+            () -> new TeaBlock(BlockBehaviour.Properties.of().instabreak().noOcclusion().pushReaction(PushReaction.DESTROY), true));
     public static final Supplier<Block> LILAC_TEA_LATTE = BLOCKS.register("lilac_tea_latte",
-            () -> new TeaBlock(BlockBehaviour.Properties.of().instabreak().noOcclusion().pushReaction(PushReaction.DESTROY)));
+            () -> new TeaBlock(BlockBehaviour.Properties.of().instabreak().noOcclusion().pushReaction(PushReaction.DESTROY), true));
     public static final Supplier<Block> BLUE_ORCHID_TEA_LATTE = BLOCKS.register("blue_orchid_tea_latte",
-            () -> new TeaBlock(BlockBehaviour.Properties.of().instabreak().noOcclusion().pushReaction(PushReaction.DESTROY)));
+            () -> new TeaBlock(BlockBehaviour.Properties.of().instabreak().noOcclusion().pushReaction(PushReaction.DESTROY), true));
 
 }

@@ -44,8 +44,14 @@ public class BambooTrayBlock extends BaseEntityBlock {
     @Override
     protected ItemInteractionResult useItemOn(ItemStack pStack, BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHitResult) {
         if (pLevel.getBlockEntity(pPos) instanceof BambooTrayEntity entity) {
-            if (!pState.getValue(PROCESS_TYPE).equals(3) && !entity.isFull() && entity.addItem(pStack, pPlayer)) {
-                return ItemInteractionResult.SUCCESS;
+            if (!pStack.isEmpty()) {
+                boolean canMainHandPut = pHand == InteractionHand.MAIN_HAND;
+                boolean canOffHandPut = pHand == InteractionHand.OFF_HAND && pPlayer.getMainHandItem().isEmpty() && entity.isEmpty();
+                if ((canMainHandPut || canOffHandPut) && !pState.getValue(PROCESS_TYPE).equals(3)
+                        && !entity.isFull() && entity.addItem(pStack, pPlayer)) {
+                    return ItemInteractionResult.SUCCESS;
+                }
+                return ItemInteractionResult.CONSUME;
             }
         }
         return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
@@ -53,10 +59,6 @@ public class BambooTrayBlock extends BaseEntityBlock {
 
     @Override
     protected InteractionResult useWithoutItem(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, BlockHitResult pHitResult) {
-        if (!pPlayer.getMainHandItem().isEmpty()) {
-            return InteractionResult.PASS;
-        }
-
         if (pLevel.getBlockEntity(pPos) instanceof BambooTrayEntity entity) {
             if (pPlayer.isShiftKeyDown()) {
                 if (!entity.isEmpty()) {

@@ -75,7 +75,7 @@
   "tea_aroma.tooltip.oolong_tea_in_processing_1": "萎凋 - 揉捻 - 干燥 - 揉捻",
   "tea_aroma.subtitles.tea_tree.pick": "茶树：沙沙作响",
   "tea_aroma.subtitles.kettle.fill": "茶壶：装满",
-  "tea_aroma.subtitles.tea_brew": "沏茶声",
+  "tea_aroma.subtitles.kettle.pour": "茶壶：倾倒",
   "tea_aroma.subtitles.tea_processing_2": "茶叶：沙沙作响",
   "tea_aroma.client_message.cannot_brew": "沏不了，也许有什么地方不太对......",
   "tea_aroma.advancement.root": "茶香",

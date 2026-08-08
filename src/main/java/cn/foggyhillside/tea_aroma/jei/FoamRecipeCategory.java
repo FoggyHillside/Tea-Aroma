@@ -1,8 +1,11 @@
 package cn.foggyhillside.tea_aroma.jei;
 
 import cn.foggyhillside.tea_aroma.TeaAroma;
+import cn.foggyhillside.tea_aroma.blocks.entities.states.KettleLiquid;
+import cn.foggyhillside.tea_aroma.component.KettleContents;
 import cn.foggyhillside.tea_aroma.recipe.FoamRecipe;
 import cn.foggyhillside.tea_aroma.registry.ModBlocks;
+import cn.foggyhillside.tea_aroma.registry.ModDataComponents;
 import cn.foggyhillside.tea_aroma.registry.ModItems;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
@@ -89,9 +92,11 @@ public class FoamRecipeCategory implements IRecipeCategory<FoamRecipe> {
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, FoamRecipe recipe, IFocusGroup focuses) {
+        ItemStack kettle = new ItemStack(ModItems.KETTLE.get());
+        kettle.set(ModDataComponents.KETTLE_CONTENTS, new KettleContents(KettleLiquid.BOILING_MILK.toString(), 3, 0));
         builder.addSlot(RecipeIngredientRole.INPUT, 17, 17).addItemStack(recipe.getTea());
         builder.addSlot(RecipeIngredientRole.OUTPUT, 69, 17).addItemStack(recipe.getOutput());
-        builder.addSlot(RecipeIngredientRole.CATALYST, 42, 30).addItemStack(new ItemStack(ModItems.KETTLE.get()));
+        builder.addSlot(RecipeIngredientRole.CATALYST, 42, 30).addItemStack(kettle);
 
     }
 }

@@ -75,7 +75,7 @@
   "tea_aroma.tooltip.oolong_tea_in_processing_1": "Withering - Rolling - Drying - Rolling",
   "tea_aroma.subtitles.tea_tree.pick": "Tea Tree rustles",
   "tea_aroma.subtitles.kettle.fill": "Tea Kettle fills",
-  "tea_aroma.subtitles.tea_brew": "Tea brewing",
+  "tea_aroma.subtitles.kettle.pour": "Tea Kettle pours",
   "tea_aroma.subtitles.tea_processing_2": "Tea Leaves rustles",
   "tea_aroma.client_message.cannot_brew": "Cannot brew, maybe something is wrong...",
   "tea_aroma.advancement.root": "Tea Aroma",

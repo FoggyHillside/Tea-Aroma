@@ -89,8 +89,8 @@ public class FoamRecipe implements Recipe<RecipeInput> {
         );
         public static final StreamCodec<RegistryFriendlyByteBuf, FoamRecipe> STREAM_CODEC =
                 StreamCodec.composite(
-                        ItemStack.OPTIONAL_STREAM_CODEC, r -> r.tea,
                         ItemStack.OPTIONAL_STREAM_CODEC, r -> r.output,
+                        ItemStack.OPTIONAL_STREAM_CODEC, r -> r.tea,
                         FoamRecipe::new
                 );
 

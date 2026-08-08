@@ -11,7 +11,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.stats.Stats;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -77,7 +76,7 @@ public class BambooTrayEntity extends SyncedBlockEntity {
         }
     }
 
-    public int getProgress(){
+    public int getProgress() {
         return this.progress;
     }
 
@@ -215,30 +214,27 @@ public class BambooTrayEntity extends SyncedBlockEntity {
 
     public boolean addItem(ItemStack itemStack, Player player) {
         int slot;
-        if (inventory.getStackInSlot(0).getCount() < inventory.getSlotLimit(0) && itemStack.is(ModTags.BAMBOO_TRAY_TEA) && (inventory.getStackInSlot(0).isEmpty() || itemStack.getItem().equals(inventory.getStackInSlot(0).getItem()))) {
+        if (itemStack.is(ModTags.BAMBOO_TRAY_TEA)) {
             slot = 0;
-        } else if (inventory.getStackInSlot(1).getCount() < inventory.getSlotLimit(1) && itemStack.is(ModTags.BAMBOO_TRAY_FLOWER) && (inventory.getStackInSlot(1).isEmpty() || itemStack.getItem().equals(inventory.getStackInSlot(1).getItem()))) {
+        } else if (itemStack.is(ModTags.BAMBOO_TRAY_FLOWER)) {
             slot = 1;
         } else {
             return false;
         }
-        int count = inventory.getSlotLimit(slot) - inventory.getStackInSlot(slot).getCount();
-        if (itemStack.getCount() > count) {
-            boolean flag = player.getAbilities().instabuild;
-            player.awardStat(Stats.ITEM_USED.get(itemStack.getItem()));
-            if (flag) {
-                inventory.setStackInSlot(slot, itemStack.copyWithCount(inventory.getSlotLimit(slot)));
-            } else {
-                inventory.setStackInSlot(slot, itemStack.split(inventory.getSlotLimit(slot)));
-            }
-        } else {
-            boolean flag = player.getAbilities().instabuild;
-            player.awardStat(Stats.ITEM_USED.get(itemStack.getItem()));
-            if (flag) {
-                inventory.setStackInSlot(slot, itemStack.copyWithCount(inventory.getStackInSlot(slot).getCount() + itemStack.getCount()));
-            } else {
-                inventory.setStackInSlot(slot, itemStack.split(inventory.getStackInSlot(slot).getCount() + itemStack.getCount()));
-            }
+
+        ItemStack current = inventory.getStackInSlot(slot);
+        if (!current.isEmpty() && !ItemStack.isSameItemSameComponents(current, itemStack)) {
+            return false;
+        }
+        int remainingCapacity = inventory.getSlotLimit(slot) - current.getCount();
+        if (remainingCapacity <= 0) {
+            return false;
+        }
+        int toInsert = Math.min(itemStack.getCount(), remainingCapacity);
+        ItemStack newStack = current.isEmpty() ? itemStack.copyWithCount(toInsert) : current.copyWithCount(current.getCount() + toInsert);
+        inventory.setStackInSlot(slot, newStack);
+        if (!player.getAbilities().instabuild) {
+            itemStack.shrink(toInsert);
         }
         return true;
     }

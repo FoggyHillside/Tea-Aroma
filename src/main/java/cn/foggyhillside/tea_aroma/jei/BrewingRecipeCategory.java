@@ -1,8 +1,11 @@
 package cn.foggyhillside.tea_aroma.jei;
 
 import cn.foggyhillside.tea_aroma.TeaAroma;
+import cn.foggyhillside.tea_aroma.blocks.entities.states.KettleLiquid;
+import cn.foggyhillside.tea_aroma.component.KettleContents;
 import cn.foggyhillside.tea_aroma.recipe.BrewingRecipe;
 import cn.foggyhillside.tea_aroma.registry.ModBlocks;
+import cn.foggyhillside.tea_aroma.registry.ModDataComponents;
 import cn.foggyhillside.tea_aroma.registry.ModItems;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
@@ -102,11 +105,13 @@ public class BrewingRecipeCategory implements IRecipeCategory<BrewingRecipe> {
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, BrewingRecipe recipe, IFocusGroup focuses) {
+        ItemStack kettle = new ItemStack(ModItems.KETTLE.get());
+        kettle.set(ModDataComponents.KETTLE_CONTENTS, new KettleContents(KettleLiquid.BOILING_WATER.toString(), 3, 0));
         builder.addSlot(RecipeIngredientRole.INPUT, 17, 17).addItemStacks(Arrays.asList((recipe.getIngredients().get(0)).getItems()));
         if (recipe.getIngredients().size() > 1) {
             builder.addSlot(RecipeIngredientRole.INPUT, 35, 17).addItemStacks(Arrays.asList((recipe.getIngredients().get(1)).getItems()));
         }
         builder.addSlot(RecipeIngredientRole.OUTPUT, 87, 17).addItemStack(recipe.getOutput());
-        builder.addSlot(RecipeIngredientRole.CATALYST, 60, 30).addItemStack(new ItemStack(ModItems.KETTLE.get()));
+        builder.addSlot(RecipeIngredientRole.CATALYST, 60, 30).addItemStack(kettle);
     }
 }

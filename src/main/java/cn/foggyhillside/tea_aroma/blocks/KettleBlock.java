@@ -109,8 +109,8 @@ public class KettleBlock extends BaseEntityBlock {
             ItemStack stack = getKettleStack(pState, pLevel, pPos);
             if (pPlayer.getMainHandItem().isEmpty()) {
                 pPlayer.setItemInHand(InteractionHand.MAIN_HAND, stack);
-            } else {
-                pPlayer.setItemInHand(InteractionHand.OFF_HAND, stack);
+            } else if (!pPlayer.getInventory().add(stack)) {
+                return InteractionResult.PASS;
             }
             pLevel.removeBlock(pPos, false);
         }

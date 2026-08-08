@@ -13,6 +13,6 @@ public class ModSounds {
 
     public static final Supplier<SoundEvent> ITEM_TEA_LEAVES_PICK_FROM_TREE = SOUNDS.register("block.tea_tree.pick", () -> SoundEvent.createVariableRangeEvent(ResourceLocation.fromNamespaceAndPath(TeaAroma.MODID, "block.tea_tree.pick")));
     public static final Supplier<SoundEvent> KETTLE_FILL = SOUNDS.register("block.kettle.fill", () -> SoundEvent.createVariableRangeEvent(ResourceLocation.fromNamespaceAndPath(TeaAroma.MODID, "block.kettle.fill")));
-    public static final Supplier<SoundEvent> TEA_BREW = SOUNDS.register("block.tea_brew", () -> SoundEvent.createVariableRangeEvent(ResourceLocation.fromNamespaceAndPath(TeaAroma.MODID, "block.tea_brew")));
+    public static final Supplier<SoundEvent> KETTLE_POUR = SOUNDS.register("block.kettle_pour", () -> SoundEvent.createVariableRangeEvent(ResourceLocation.fromNamespaceAndPath(TeaAroma.MODID, "block.kettle_pour")));
     public static final Supplier<SoundEvent> TEA_PROCESSING_2 = SOUNDS.register("block.tea_processing_2", () -> SoundEvent.createVariableRangeEvent(ResourceLocation.fromNamespaceAndPath(TeaAroma.MODID, "block.tea_processing_2")));
 }

@@ -67,15 +67,16 @@ public class CupBlock extends BaseEntityBlock {
 
     @Override
     protected InteractionResult useWithoutItem(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, BlockHitResult pHitResult) {
-        if (!pPlayer.getMainHandItem().isEmpty()) {
-            return InteractionResult.PASS;
-        }
-
         BlockEntity blockEntity = pLevel.getBlockEntity(pPos);
         if (blockEntity instanceof CupEntity cupEntity) {
             if (cupEntity.isEmpty()) {
                 if (!pLevel.isClientSide()) {
-                    pPlayer.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(ModItems.CUP.get()));
+                    ItemStack cupStack = new ItemStack(ModItems.CUP.get());
+                    if (pPlayer.getMainHandItem().isEmpty()) {
+                        pPlayer.setItemInHand(InteractionHand.MAIN_HAND, cupStack);
+                    } else if (!pPlayer.getInventory().add(cupStack)) {
+                        return InteractionResult.PASS;
+                    }
                     pLevel.removeBlock(pPos, false);
                 }
                 return InteractionResult.SUCCESS;
