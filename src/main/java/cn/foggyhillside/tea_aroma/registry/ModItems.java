@@ -10,10 +10,17 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 public class ModItems {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(Registries.ITEM, TeaAroma.MODID);
+
+    private static final String DRYING = TeaAroma.MODID + ".tooltip.drying";
+    private static final String ROLLING = TeaAroma.MODID + ".tooltip.rolling";
+    private static final String FERMENTATION = TeaAroma.MODID + ".tooltip.fermentation";
+    private static final String WITHERING = TeaAroma.MODID + ".tooltip.withering";
+    private static final String SCENTING = TeaAroma.MODID + ".tooltip.scenting";
 
     private static Item.Properties tea() {
         return new Item.Properties().stacksTo(1).craftRemainder(ModItems.CUP.get());
@@ -28,10 +35,10 @@ public class ModItems {
 
     public static final Supplier<Item> TEA_SAPLING = ITEMS.register("tea_sapling",
             () -> new BlockItem(ModBlocks.TEA_TREE.get(), new Item.Properties()));
-    public static final Supplier<Item> BAMBOO_LEAVES = ITEMS.register("bamboo_leaves",
-            () -> new Item(new Item.Properties()));
-    public static final Supplier<Item> FRESH_TEA_LEAVES = ITEMS.register("fresh_tea_leaves",
-            () -> new Item(new Item.Properties()));
+    public static final Supplier<Item> BAMBOO_LEAVES = registerTeaInProcessing("bamboo_leaves",
+            List.of(), List.of(DRYING));
+    public static final Supplier<Item> FRESH_TEA_LEAVES = registerTeaInProcessing("fresh_tea_leaves",
+            List.of(), List.of(DRYING, WITHERING));
     //Tea Leaves
     public static final Supplier<Item> BAMBOO_TEA_LEAVES = ITEMS.register("bamboo_tea_leaves",
             () -> new Item(new Item.Properties()));
@@ -56,32 +63,32 @@ public class ModItems {
     public static final Supplier<Item> BLUE_ORCHID_TEA_LEAVES = ITEMS.register("blue_orchid_tea_leaves",
             () -> new Item(new Item.Properties()));
     //Tea In Processing
-    public static final Supplier<Item> ROSE_TEA_IN_PROCESSING = ITEMS.register("rose_tea_in_processing",
-            () -> new TeaTooltipItem(new Item.Properties()));
-    public static final Supplier<Item> DANDELION_TEA_IN_PROCESSING = ITEMS.register("dandelion_tea_in_processing",
-            () -> new TeaTooltipItem(new Item.Properties()));
-    public static final Supplier<Item> LILAC_TEA_IN_PROCESSING = ITEMS.register("lilac_tea_in_processing",
-            () -> new TeaTooltipItem(new Item.Properties()));
-    public static final Supplier<Item> BLUE_ORCHID_TEA_IN_PROCESSING = ITEMS.register("blue_orchid_tea_in_processing",
-            () -> new TeaTooltipItem(new Item.Properties()));
-    public static final Supplier<Item> TEA_IN_PROCESSING_0 = ITEMS.register("tea_in_processing_0",
-            () -> new TeaTooltipItem(new Item.Properties()));
-    public static final Supplier<Item> TEA_IN_PROCESSING_0_0 = ITEMS.register("tea_in_processing_0_0",
-            () -> new TeaTooltipItem(new Item.Properties()));
-    public static final Supplier<Item> TEA_IN_PROCESSING_0_0_0 = ITEMS.register("tea_in_processing_0_0_0",
-            () -> new TeaTooltipItem(new Item.Properties()));
-    public static final Supplier<Item> TEA_IN_PROCESSING_1 = ITEMS.register("tea_in_processing_1",
-            () -> new TeaTooltipItem(new Item.Properties()));
-    public static final Supplier<Item> TEA_IN_PROCESSING_1_0 = ITEMS.register("tea_in_processing_1_0",
-            () -> new TeaTooltipItem(new Item.Properties()));
-    public static final Supplier<Item> DARK_TEA_IN_PROCESSING = ITEMS.register("dark_tea_in_processing",
-            () -> new TeaTooltipItem(new Item.Properties()));
-    public static final Supplier<Item> BLACK_TEA_IN_PROCESSING = ITEMS.register("black_tea_in_processing",
-            () -> new TeaTooltipItem(new Item.Properties()));
-    public static final Supplier<Item> OOLONG_TEA_IN_PROCESSING_0 = ITEMS.register("oolong_tea_in_processing_0",
-            () -> new TeaTooltipItem(new Item.Properties()));
-    public static final Supplier<Item> OOLONG_TEA_IN_PROCESSING_1 = ITEMS.register("oolong_tea_in_processing_1",
-            () -> new TeaTooltipItem(new Item.Properties()));
+    public static final Supplier<Item> ROSE_TEA_IN_PROCESSING = registerTeaInProcessing("rose_tea_in_processing",
+            List.of(DRYING, SCENTING), List.of(DRYING));
+    public static final Supplier<Item> DANDELION_TEA_IN_PROCESSING = registerTeaInProcessing("dandelion_tea_in_processing",
+            List.of(DRYING, SCENTING), List.of(DRYING));
+    public static final Supplier<Item> LILAC_TEA_IN_PROCESSING = registerTeaInProcessing("lilac_tea_in_processing",
+            List.of(DRYING, SCENTING), List.of(DRYING));
+    public static final Supplier<Item> BLUE_ORCHID_TEA_IN_PROCESSING = registerTeaInProcessing("blue_orchid_tea_in_processing",
+            List.of(DRYING, SCENTING), List.of(DRYING));
+    public static final Supplier<Item> TEA_IN_PROCESSING_0 = registerTeaInProcessing("tea_in_processing_0",
+            List.of(DRYING), List.of(ROLLING, SCENTING));
+    public static final Supplier<Item> TEA_IN_PROCESSING_0_0 = registerTeaInProcessing("tea_in_processing_0_0",
+            List.of(DRYING, ROLLING), List.of(DRYING, FERMENTATION));
+    public static final Supplier<Item> TEA_IN_PROCESSING_0_0_0 = registerTeaInProcessing("tea_in_processing_0_0_0",
+            List.of(DRYING, ROLLING, FERMENTATION), List.of(DRYING, ROLLING));
+    public static final Supplier<Item> TEA_IN_PROCESSING_1 = registerTeaInProcessing("tea_in_processing_1",
+            List.of(WITHERING), List.of(DRYING, ROLLING));
+    public static final Supplier<Item> TEA_IN_PROCESSING_1_0 = registerTeaInProcessing("tea_in_processing_1_0",
+            List.of(WITHERING, ROLLING), List.of(FERMENTATION, DRYING));
+    public static final Supplier<Item> DARK_TEA_IN_PROCESSING = registerTeaInProcessing("dark_tea_in_processing",
+            List.of(DRYING, ROLLING, FERMENTATION, ROLLING), List.of(DRYING));
+    public static final Supplier<Item> BLACK_TEA_IN_PROCESSING = registerTeaInProcessing("black_tea_in_processing",
+            List.of(WITHERING, ROLLING, FERMENTATION), List.of(DRYING));
+    public static final Supplier<Item> OOLONG_TEA_IN_PROCESSING_0 = registerTeaInProcessing("oolong_tea_in_processing_0",
+            List.of(WITHERING, ROLLING, DRYING), List.of(ROLLING));
+    public static final Supplier<Item> OOLONG_TEA_IN_PROCESSING_1 = registerTeaInProcessing("oolong_tea_in_processing_1",
+            List.of(WITHERING, ROLLING, DRYING, ROLLING), List.of(DRYING));
     //Tea
     public static final Supplier<Item> BAMBOO_TEA = ITEMS.register("bamboo_tea",
             () -> new TeaItem(ModBlocks.BAMBOO_TEA.get(), tea().food(FoodList.BAMBOO_TEA)));
@@ -129,4 +136,8 @@ public class ModItems {
     public static final Supplier<Item> BLUE_ORCHID_TEA_LATTE = ITEMS.register("blue_orchid_tea_latte",
             () -> new TeaItem(ModBlocks.BLUE_ORCHID_TEA_LATTE.get(), tea().food(FoodList.BLUE_ORCHID_TEA_LATTE), true));
 
+    private static Supplier<Item> registerTeaInProcessing(String pName, List<String> completedKeys, List<String> nextKeys) {
+        return ITEMS.register(pName,
+                () -> new TeaTooltipItem(new Item.Properties(), completedKeys, nextKeys));
+    }
 }
